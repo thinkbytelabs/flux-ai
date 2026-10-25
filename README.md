@@ -2,7 +2,57 @@
 
 Flux AI is a platform for defining AI agents as YAML and orchestrating them into workflows. It talks to LLMs through its own provider layer (`flux-llm`) and provides event-sourced sessions, SSE streaming, and durable human-approval gates.
 
-## Quickstart
+## Quickstart (Docker)
+
+No Rust toolchain needed, and no API key: the bundled `mock-chat` workflow uses the mock provider.
+
+```bash
+docker compose up -d            # add --build to build the image from this checkout
+curl -s localhost:8080/workflows
+```
+
+Start a run, then stream its events (replace `<run_id>` with the id the first call returns):
+
+```bash
+curl -s localhost:8080/runs -H 'content-type: application/json' \
+  -d '{"workflow_id":"mock-chat","input":"hello mock"}'
+# {"run_id":"<run_id>"}
+curl -N localhost:8080/runs/<run_id>/events
+# ... data: "WorkflowComplete"
+```
+
+Or run a workflow to completion in one call with `POST /chat`:
+
+```bash
+curl -s localhost:8080/chat -H 'content-type: application/json' \
+  -d '{"workflow_id":"mock-chat","input":"hello mock"}'
+# {"reply":"hello mock","run_id":"...","status":"complete","structured":null}
+```
+
+`agents/` and `workflows/` are mounted read-only into the container, so edit them
+locally and run `docker compose restart flux`. Port 8080 taken? Set `FLUX_PORT`
+(for example `FLUX_PORT=9090 docker compose up -d`). Stop with `docker compose down`.
+
+To use a real model, export `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`), point an
+agent at `provider: anthropic` (or `openai`), and run `docker compose up -d` again.
+Compose passes the keys through from your shell; they are never stored in a file.
+
+For persistent conversation memory, add Postgres with the override file:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.memory.yml up -d
+```
+
+It starts a Postgres container and sets `DATABASE_URL` for Flux (trust auth, for local use only).
+
+### Install a prebuilt binary
+
+Every `v*` tag publishes `flux-server`, `run_agent` and `run_workflow` for Linux
+and macOS (x86_64 and aarch64), with `.sha256` checksums, on the
+[GitHub Releases page](https://github.com/thinkbytelabs/flux-ai/releases), and a
+multi-arch container image at `ghcr.io/thinkbytelabs/flux`.
+
+## Quickstart (from source)
 
 The bundled `echo` agent calls a real LLM, so it needs an Anthropic or OpenAI API key (the `echo` agent uses Anthropic). To run with no key at all, use the mock provider (see "Try it with no API key" below).
 

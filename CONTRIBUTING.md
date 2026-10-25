@@ -55,6 +55,13 @@ cargo deny check            # cargo install cargo-deny
 - Add a line under `## [Unreleased]` in `CHANGELOG.md` for user-visible changes.
 - Describe *why* in the PR body, and how you verified the change.
 
+## Cutting a release
+
+Maintainers: bump the version in `Cargo.toml`, move the `## [Unreleased]`
+entries in `CHANGELOG.md` under a new `## [X.Y.Z]` heading, commit, then tag
+`vX.Y.Z` and push the tag. The Release workflow builds the binaries and the
+container image and creates the GitHub release from that CHANGELOG section.
+
 ## License
 
 By contributing you agree that your contributions are licensed under the
