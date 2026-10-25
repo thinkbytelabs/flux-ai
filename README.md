@@ -7,7 +7,7 @@ Flux AI is a platform for defining AI agents as YAML and orchestrating them into
 No Rust toolchain needed, and no API key: the bundled `mock-chat` workflow uses the mock provider.
 
 ```bash
-docker compose up -d            # add --build to build the image from this checkout
+docker compose up -d --build    # --build can be dropped once a published image exists
 curl -s localhost:8080/workflows
 ```
 
@@ -31,7 +31,8 @@ curl -s localhost:8080/chat -H 'content-type: application/json' \
 
 `agents/` and `workflows/` are mounted read-only into the container, so edit them
 locally and run `docker compose restart flux`. Port 8080 taken? Set `FLUX_PORT`
-(for example `FLUX_PORT=9090 docker compose up -d`). Stop with `docker compose down`.
+(for example `FLUX_PORT=9090 docker compose up -d --build`). Stop with `docker compose down`.
+The port is published on `127.0.0.1` only: Flux has no built-in authentication (see [SECURITY.md](SECURITY.md)) and the container may hold your API keys.
 
 To use a real model, export `ANTHROPIC_API_KEY` (or `OPENAI_API_KEY`), point an
 agent at `provider: anthropic` (or `openai`), and run `docker compose up -d` again.
@@ -51,6 +52,14 @@ Every `v*` tag publishes `flux-server`, `run_agent` and `run_workflow` for Linux
 and macOS (x86_64 and aarch64), with `.sha256` checksums, on the
 [GitHub Releases page](https://github.com/thinkbytelabs/flux-ai/releases), and a
 multi-arch container image at `ghcr.io/thinkbytelabs/flux`.
+
+The tarball includes `config/`, `agents/` and `workflows/`. Run from the extracted
+directory (or set `FLUX_CONFIG_DIR`), pass the directories, and make sure Redis is
+reachable (`REDIS_URL`, default `redis://127.0.0.1:6379`):
+
+```bash
+./flux-server --agents-dir agents --workflows-dir workflows
+```
 
 ## Quickstart (from source)
 

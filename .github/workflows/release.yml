@@ -9,8 +9,7 @@ on:
         required: true
 
 permissions:
-  contents: write
-  packages: write
+  contents: read
 
 env:
   # A pushed tag, or the tag typed into a manual run.
@@ -21,12 +20,20 @@ jobs:
   release:
     name: Create release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.TAG }}
       # Notes are the CHANGELOG section for this version. An existing release
       # is left alone; the other jobs only add or replace its assets.
+      - name: Check the tag looks like a version
+        run: |
+          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
+            echo "Tag '$TAG' is not vX.Y.Z or vX.Y.Z-suffix" >&2
+            exit 1
+          fi
       - name: Create the release if it does not exist
         env:
           GH_TOKEN: ${{ github.token }}
@@ -44,22 +51,27 @@ jobs:
           if [ ! -s notes.md ]; then
             echo "See CHANGELOG.md for details." > notes.md
           fi
-          gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag
+          flags=()
+          if [[ "$TAG" == *-* ]]; then flags+=(--prerelease); fi
+          gh release create "$TAG" --title "$TAG" --notes-file notes.md --verify-tag "${flags[@]}"
 
   binaries:
     name: Binaries (${{ matrix.target }})
     needs: release
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
         include:
+          # Oldest runners available, so the binaries need only glibc 2.35.
           - target: x86_64-unknown-linux-gnu
-            os: ubuntu-latest
+            os: ubuntu-22.04
           - target: aarch64-unknown-linux-gnu
-            os: ubuntu-24.04-arm
+            os: ubuntu-22.04-arm
           - target: aarch64-apple-darwin
-            os: macos-14
+            os: macos-15
           # macos-13 has been retired by GitHub; macos-15-intel is its successor.
           - target: x86_64-apple-darwin
             os: macos-15-intel
@@ -86,6 +98,7 @@ jobs:
           mkdir "$name"
           cp target/release/flux-server target/release/run_agent target/release/run_workflow \
             LICENSE NOTICE README.md "$name/"
+          cp -R config agents workflows "$name/"
           tar czf "$name.tar.gz" "$name"
           shasum -a 256 "$name.tar.gz" > "$name.tar.gz.sha256"
       - name: Upload to the release
@@ -98,6 +111,9 @@ jobs:
   image:
     name: Image (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+      packages: write
     strategy:
       fail-fast: false
       matrix:
@@ -145,6 +161,9 @@ jobs:
     name: Image manifest
     needs: image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/download-artifact@v4
         with:

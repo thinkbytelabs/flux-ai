@@ -9,3 +9,5 @@ dump.rdb
 .idea/
 .vscode/
 *.swp
+.env
+.env.*

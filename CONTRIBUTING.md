@@ -62,6 +62,13 @@ entries in `CHANGELOG.md` under a new `## [X.Y.Z]` heading, commit, then tag
 `vX.Y.Z` and push the tag. The Release workflow builds the binaries and the
 container image and creates the GitHub release from that CHANGELOG section.
 
+- A release tag must point at a commit that contains the `Dockerfile` and
+  `release.yml`. The manual `workflow_dispatch` run (input `tag`) only re-runs a
+  tag that already has them.
+- First release only: GHCR packages pushed by a workflow start private. Open
+  the `flux` package under the organization's Packages, then Package settings,
+  and change visibility to public.
+
 ## License
 
 By contributing you agree that your contributions are licensed under the
