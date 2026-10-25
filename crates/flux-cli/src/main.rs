@@ -26,7 +26,14 @@ async fn main() -> ExitCode {
     }
 }
 
+const USAGE: &str = "usage: run_agent [--conversation-id ID] <agent.yaml> <message>";
+
 async fn run() -> anyhow::Result<()> {
+    // Before settings load, so help works without a config dir.
+    if std::env::args().skip(1).any(|a| a == "-h" || a == "--help") {
+        println!("{USAGE}");
+        return Ok(());
+    }
     let settings = flux_settings::Settings::load().context("loading settings")?;
     let _telemetry_guard = flux_core::telemetry::init_tracing(
         true,
@@ -34,7 +41,6 @@ async fn run() -> anyhow::Result<()> {
     );
     tracing::info!(config_dir = %settings.config_dir, env = %settings.env_name, "configuration loaded");
 
-    // usage: run_agent [--conversation-id ID] <agent.yaml> <message>
     let mut conversation_id: Option<String> = None;
     let mut positional: Vec<String> = Vec::new();
     let mut args = std::env::args().skip(1);
@@ -48,7 +54,7 @@ async fn run() -> anyhow::Result<()> {
     }
     let (path, message) = match positional.as_slice() {
         [p, m] => (PathBuf::from(p), m.clone()),
-        _ => bail!("usage: run_agent [--conversation-id ID] <agent.yaml> <message>"),
+        _ => bail!(USAGE),
     };
 
     let agent_defaults = AgentDefaults {

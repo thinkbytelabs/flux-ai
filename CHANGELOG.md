@@ -7,6 +7,11 @@ may break).
 
 ## [Unreleased]
 
+### Fixed
+- `flux-server`, `run_agent` and `run_workflow` print their usage for
+  `--help`/`-h` from any directory, instead of failing to load
+  `./config/base.yaml` first.
+
 ## [0.1.0] - 2026-10-25
 
 First release.
