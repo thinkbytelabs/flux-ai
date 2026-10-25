@@ -78,14 +78,17 @@ fn notifications_get_no_response() {
 }
 
 #[test]
-fn tools_list_advertises_three_tools_with_schemas() {
+fn tools_list_advertises_four_tools_with_schemas() {
     let out = exchange(&[
         initialize(),
         serde_json::json!({ "jsonrpc": "2.0", "id": 2, "method": "tools/list" }),
     ]);
     let tools = out[1]["result"]["tools"].as_array().expect("tools array");
     let names: Vec<&str> = tools.iter().filter_map(|t| t["name"].as_str()).collect();
-    assert_eq!(names, vec!["echo_upper", "emit_structured", "always_fails"]);
+    assert_eq!(
+        names,
+        vec!["echo_upper", "emit_structured", "always_fails", "read_env"]
+    );
     assert_eq!(tools[0]["inputSchema"]["type"], "object");
     assert_eq!(tools[0]["inputSchema"]["required"][0], "text");
 }

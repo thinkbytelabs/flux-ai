@@ -31,6 +31,15 @@ fn tool_specs() -> Value {
             "name": "always_fails",
             "description": "Always reports a tool-level error",
             "inputSchema": { "type": "object", "properties": {} }
+        },
+        {
+            "name": "read_env",
+            "description": "Report one environment variable of this process",
+            "inputSchema": {
+                "type": "object",
+                "properties": { "name": { "type": "string" } },
+                "required": ["name"]
+            }
         }
     ])
 }
@@ -55,6 +64,15 @@ fn call_tool(params: &Value) -> Value {
             "content": [{ "type": "text", "text": "boom" }],
             "isError": true
         }),
+        // Lets tests see which variables Flux passed to the child.
+        "read_env" => {
+            let var = args["name"].as_str().unwrap_or_default();
+            let value = std::env::var(var).unwrap_or_else(|_| "<unset>".to_string());
+            json!({
+                "content": [{ "type": "text", "text": value }],
+                "isError": false
+            })
+        }
         other => json!({
             "content": [{ "type": "text", "text": format!("unknown tool: {other}") }],
             "isError": true

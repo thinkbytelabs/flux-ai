@@ -99,7 +99,7 @@ workflow can drive `when`/`depends_on` branches without any provider.
 
 ## Architecture
 
-Flux is a Cargo workspace of 11 crates with strictly downward, acyclic dependencies. `flux-core` defines the shared domain types and error type; everything builds up from there. The CLI bins and the HTTP server are the only `anyhow` edges — libraries use `thiserror`/`FluxError`.
+Flux is a Cargo workspace of 13 crates with strictly downward, acyclic dependencies. `flux-core` defines the shared domain types and error type; everything builds up from there. The CLI bins and the HTTP server are the only `anyhow` edges — libraries use `thiserror`/`FluxError`.
 
 ```mermaid
 graph TD
@@ -154,6 +154,8 @@ kind answered it.
 | `flux-workflow` | Workflow DAG model and YAML loading (`Stage`, `when`, approval flags). |
 | `flux-orchestrator` | Executes workflows: ready-rounds, conditional skip-cascade, parallel stages, pause/resume. |
 | `flux-session` | Event-sourced sessions and the `EventStore` (`MemoryStore`, `RedisStore`). |
+| `flux-memory` | Conversation memory: in-memory, Redis, Postgres and tiered (Redis over Postgres) stores. |
+| `flux-settings` | Layered runtime settings: `config/base.yaml` plus an environment overlay and env-var overrides. |
 | `flux-server` | Axum HTTP server: run submission, SSE event streaming, approvals. |
 | `flux-cli` | The `run_agent` and `run_workflow` binaries. |
 
@@ -183,9 +185,10 @@ Honest list of what Flux does not do yet.
 - **The Redis memory backend is not covered by CI.** Its tests require a live server (`cargo test -p flux-memory -- --ignored`). The Postgres backend is covered the same way.
 - **MCP transport is stdio only.** Network (Streamable HTTP) MCP servers are not
   supported yet.
-- **MCP servers inherit the Flux process environment**, so a server sees every
-  secret Flux holds. Tool credential scoping is not implemented for either
-  transport.
+- **MCP credential scoping is by variable name only.** An MCP server gets a few
+  non-secret variables plus the ones listed in its `env`, but a listed secret
+  is passed for the server's whole lifetime, not per call or per tenant, and
+  gRPC tool servers manage their own credentials.
 - **The tool manifest is read once at boot.** A newly published tool requires a
   restart.
 - **A dead MCP server is not restarted.** Restarting it could expose a tool list
@@ -334,6 +337,22 @@ tools:
       args: ["-y", "@modelcontextprotocol/server-github"]
 ```
 
+**Environment.** An MCP server does not inherit Flux's environment, so it never
+sees Flux's LLM keys or database URLs. It gets `PATH`, `HOME`, `USER`,
+`LOGNAME`, `SHELL`, `LANG`, `LC_ALL`, `TMPDIR` and `TZ` when set, plus the
+variables named in its `env` list. List names, not values; a listed variable
+that is unset is skipped. Proxy variables are not passed by default, because
+their URLs can carry credentials; list `HTTPS_PROXY` and friends when a server
+needs them.
+
+```yaml
+tools:
+  mcp:
+    - command: npx
+      args: ["-y", "@modelcontextprotocol/server-github"]
+      env: [GITHUB_PERSONAL_ACCESS_TOKEN]
+```
+
 Its tools join the same name-routed table as any gRPC tool server, so a stage
 calls one exactly like the other:
 
@@ -368,6 +387,7 @@ tools:
   mcp:
     - command: npx
       args: ["-y", "@modelcontextprotocol/server-github"]
+      env: [GITHUB_PERSONAL_ACCESS_TOKEN]
 ```
 
 ```yaml

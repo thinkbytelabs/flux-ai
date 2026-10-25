@@ -14,7 +14,7 @@ use std::path::PathBuf;
 /// Mirrors the private `mcp_servers()` helper that each of the three binaries
 /// carries. The duplication is deliberate upstream — `flux-settings` must not
 /// depend on `flux-tool-client`, so the two spec types stay separate — which is
-/// exactly why the mapping deserves pinning somewhere: two fields, carried
+/// exactly why the mapping deserves pinning somewhere: three fields, carried
 /// across unchanged.
 fn mcp_servers(settings: &flux_settings::Settings) -> Vec<flux_tool_client::mcp::McpServer> {
     settings
@@ -24,6 +24,7 @@ fn mcp_servers(settings: &flux_settings::Settings) -> Vec<flux_tool_client::mcp:
         .map(|s| flux_tool_client::mcp::McpServer {
             command: s.command.clone(),
             args: s.args.clone(),
+            env: s.env.clone(),
         })
         .collect()
 }
@@ -97,7 +98,10 @@ async fn mcp_only_config_reaches_connect_all_and_serves_tools() {
     let manifest = transport.list_tools().await.expect("list tools");
     let mut names: Vec<&str> = manifest.tools.iter().map(|t| t.name.as_str()).collect();
     names.sort();
-    assert_eq!(names, vec!["always_fails", "echo_upper", "emit_structured"]);
+    assert_eq!(
+        names,
+        vec!["always_fails", "echo_upper", "emit_structured", "read_env"]
+    );
 
     // And it actually routes a call — a manifest alone would not prove the
     // transport is usable.
@@ -125,12 +129,12 @@ async fn config_with_neither_endpoint_nor_mcp_reports_no_backends() {
 
 #[tokio::test]
 async fn mcp_server_mapping_preserves_command_and_args_in_order() {
-    // Pins the two-field mapping the three binaries duplicate. Argument order
+    // Pins the three-field mapping the three binaries duplicate. Argument order
     // matters: an MCP server launched with its args transposed is a different
     // program, and the failure would surface as a confusing spawn error.
     let cfg = TempConfigDir::new(
         "mapping",
-        "tools:\n  mcp:\n    - command: npx\n      args: [\"-y\", \"@scope/server\", \"--flag\"]\n    - command: uvx\n",
+        "tools:\n  mcp:\n    - command: npx\n      args: [\"-y\", \"@scope/server\", \"--flag\"]\n      env: [TOKEN_A, TOKEN_B]\n    - command: uvx\n",
     );
     let settings = cfg.load();
     let servers = mcp_servers(&settings);
@@ -138,6 +142,7 @@ async fn mcp_server_mapping_preserves_command_and_args_in_order() {
     assert_eq!(servers.len(), 2);
     assert_eq!(servers[0].command, "npx");
     assert_eq!(servers[0].args, vec!["-y", "@scope/server", "--flag"]);
+    assert_eq!(servers[0].env, vec!["TOKEN_A", "TOKEN_B"]);
     assert_eq!(servers[1].command, "uvx");
     assert!(
         servers[1].args.is_empty(),

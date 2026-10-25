@@ -188,9 +188,8 @@ fn d_pg_acquire() -> u64 {
 
 /// How to launch one MCP tool server as a child process.
 ///
-/// No `env` field on purpose: children inherit Flux's environment, and
-/// selective credential passing belongs to the separate tool-auth work. Note
-/// that inheritance means an MCP server sees every secret Flux holds.
+/// The child does not inherit Flux's environment: it gets a few non-secret
+/// variables (`PATH`, `HOME`, locale, ...) plus the ones named in `env`.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct McpServerCfg {
@@ -198,6 +197,11 @@ pub struct McpServerCfg {
     pub command: String,
     #[serde(default)]
     pub args: Vec<String>,
+    /// Names of environment variables to pass to this server, e.g.
+    /// `[GITHUB_PERSONAL_ACCESS_TOKEN]`. Names only: values stay in the
+    /// environment. A listed variable that is unset is skipped.
+    #[serde(default)]
+    pub env: Vec<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -607,7 +611,24 @@ mod tests {
 
     #[test]
     fn unknown_mcp_field_is_rejected() {
+        let err = serde_yaml_ng::from_str::<ToolsCfg>("mcp:\n  - command: npx\n    cwd: /tmp\n");
+        assert!(err.is_err(), "deny_unknown_fields must reject `cwd`");
+    }
+
+    #[test]
+    fn mcp_env_lists_variable_names() {
+        let cfg: ToolsCfg = serde_yaml_ng::from_str(
+            "mcp:\n  - command: npx\n    env: [GITHUB_TOKEN, OTHER]\n  - command: uvx\n",
+        )
+        .expect("parse tools cfg");
+        assert_eq!(cfg.mcp[0].env, vec!["GITHUB_TOKEN", "OTHER"]);
+        assert!(cfg.mcp[1].env.is_empty(), "env defaults to empty");
+    }
+
+    #[test]
+    fn mcp_env_values_in_config_are_rejected() {
+        // Secrets stay in the environment, never in config.
         let err = serde_yaml_ng::from_str::<ToolsCfg>("mcp:\n  - command: npx\n    env: {A: b}\n");
-        assert!(err.is_err(), "deny_unknown_fields must reject `env`");
+        assert!(err.is_err(), "a name -> value map must not parse");
     }
 }

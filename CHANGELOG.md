@@ -12,6 +12,10 @@ may break).
 First release.
 
 ### Security
+- MCP servers no longer inherit Flux's environment, so they cannot read its
+  LLM API keys or database URLs. Each gets `PATH`, `HOME`, `USER`, `LOGNAME`,
+  `SHELL`, `LANG`, `LC_ALL`, `TMPDIR` and `TZ`, plus the variables named in
+  its new `tools.mcp[].env` list.
 - An agent can no longer call a tool outside its `tools:` list; such a call
   returns `{"error": "tool '<name>' is not available"}` to the model.
 - `POST /runs/{id}/approve` only accepts a stage the run is paused on; any
@@ -39,6 +43,9 @@ First release.
   "Refining a stage's answer" and `workflows/refine-mock.yaml`.
 
 ### Changed (breaking)
+- An MCP server that read a token from Flux's environment (for example
+  `GITHUB_PERSONAL_ACCESS_TOKEN`) must now list it in `tools.mcp[].env`.
+  `flux_tool_client::mcp::McpServer` gains an `env` field.
 - New `WorkflowEvent::RefineRound` (see Added). `WorkflowEvent` is not
   `#[non_exhaustive]`, so exhaustive matches downstream stop compiling. It is
   also a stored-data change: an older server cannot read a run log that

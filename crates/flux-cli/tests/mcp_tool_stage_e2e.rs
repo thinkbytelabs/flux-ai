@@ -14,6 +14,7 @@ async fn tool_stage_reaches_a_real_mcp_server() {
     let servers = vec![flux_tool_client::mcp::McpServer {
         command: env!("CARGO_BIN_EXE_mcp_fixture").to_string(),
         args: Vec::new(),
+        env: Vec::new(),
     }];
     let transport = flux_tool_client::connect_all(&[], &servers)
         .await
@@ -59,6 +60,7 @@ async fn a_tool_name_exported_by_two_mcp_servers_is_a_startup_error() {
     let one = flux_tool_client::mcp::McpServer {
         command: env!("CARGO_BIN_EXE_mcp_fixture").to_string(),
         args: Vec::new(),
+        env: Vec::new(),
     };
     // `.expect_err()` would require `MultiTransport<AnyTransport>: Debug`, but
     // `AnyTransport` deliberately does not derive `Debug` (see its definition in

@@ -224,7 +224,7 @@ fn count(n: Option<u32>) -> String {
 }
 
 /// `flux-settings` must not depend on `flux-tool-client`, so the two spec types
-/// are mapped here. Two fields, one map.
+/// are mapped here. Three fields, one map.
 fn mcp_servers(settings: &flux_settings::Settings) -> Vec<flux_tool_client::mcp::McpServer> {
     settings
         .tools
@@ -233,6 +233,7 @@ fn mcp_servers(settings: &flux_settings::Settings) -> Vec<flux_tool_client::mcp:
         .map(|s| flux_tool_client::mcp::McpServer {
             command: s.command.clone(),
             args: s.args.clone(),
+            env: s.env.clone(),
         })
         .collect()
 }

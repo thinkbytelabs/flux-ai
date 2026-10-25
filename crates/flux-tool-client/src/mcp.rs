@@ -30,13 +30,22 @@ const LIST_TOOLS_TIMEOUT: Duration = Duration::from_secs(30);
 /// make it configurable.
 const CALL_TOOL_TIMEOUT: Duration = Duration::from_secs(120);
 
-/// How to launch one MCP server. Deliberately has no `env` field: children
-/// inherit Flux's environment, and credential scoping belongs to the separate
-/// tool-auth work.
+/// Variables every MCP child gets from Flux's environment when set: enough to
+/// find and run `npx`/`uvx` and pick a locale, and nothing that holds a
+/// secret. Proxy variables are left out because their URLs can carry
+/// credentials; list them in [`McpServer::env`] when a server needs them.
+pub const BASE_ENV: &[&str] = &[
+    "PATH", "HOME", "USER", "LOGNAME", "SHELL", "LANG", "LC_ALL", "TMPDIR", "TZ",
+];
+
+/// How to launch one MCP server.
 #[derive(Debug, Clone, PartialEq)]
 pub struct McpServer {
     pub command: String,
     pub args: Vec<String>,
+    /// Names of Flux's environment variables to pass to the child, on top of
+    /// [`BASE_ENV`]. Nothing else is inherited.
+    pub env: Vec<String>,
 }
 
 impl McpServer {
@@ -69,6 +78,18 @@ impl McpTransport {
 
         let mut cmd = tokio::process::Command::new(&server.command);
         cmd.args(&server.args);
+        // An MCP server is third-party code: it must not see Flux's LLM keys or
+        // database URLs unless they are named for it.
+        cmd.env_clear();
+        for var in BASE_ENV
+            .iter()
+            .copied()
+            .chain(server.env.iter().map(String::as_str))
+        {
+            if let Some(value) = std::env::var_os(var) {
+                cmd.env(var, value);
+            }
+        }
 
         // stderr is inherited on purpose. If it were piped and never drained,
         // a chatty server would fill the pipe and block forever — a hang that

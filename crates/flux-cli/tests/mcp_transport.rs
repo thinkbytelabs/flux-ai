@@ -8,6 +8,7 @@ fn fixture() -> McpServer {
     McpServer {
         command: env!("CARGO_BIN_EXE_mcp_fixture").to_string(),
         args: Vec::new(),
+        env: Vec::new(),
     }
 }
 
@@ -20,7 +21,10 @@ async fn list_tools_returns_the_fixtures_manifest() {
     let manifest = transport.list_tools().await.expect("list tools");
     let mut names: Vec<&str> = manifest.tools.iter().map(|t| t.name.as_str()).collect();
     names.sort();
-    assert_eq!(names, vec!["always_fails", "echo_upper", "emit_structured"]);
+    assert_eq!(
+        names,
+        vec!["always_fails", "echo_upper", "emit_structured", "read_env"]
+    );
 
     let echo = manifest.find("echo_upper").expect("echo_upper in manifest");
     assert_eq!(echo.description, "Uppercase the given text");
@@ -45,6 +49,7 @@ async fn a_server_silent_after_the_handshake_cannot_hang_boot() {
     let server = McpServer {
         command: env!("CARGO_BIN_EXE_mcp_fixture").to_string(),
         args: vec!["--silent-after-initialize".to_string()],
+        env: Vec::new(),
     };
     // The handshake itself must still succeed — otherwise this would be
     // re-testing HANDSHAKE_TIMEOUT rather than the gap after it.
@@ -82,6 +87,7 @@ async fn spawning_a_missing_command_fails_with_a_useful_message() {
     let err = McpTransport::spawn(&McpServer {
         command: "flux-no-such-mcp-server-binary".into(),
         args: vec!["--nope".into()],
+        env: Vec::new(),
     })
     .await
     .expect_err("a missing command must not succeed");
@@ -189,4 +195,45 @@ async fn dropping_the_transport_kills_the_child() {
         !alive,
         "child process {pid} outlived its transport (orphan leak)"
     );
+}
+
+/// What the fixture child sees for `var`, or `<unset>`.
+async fn child_env(server: &McpServer, var: &str) -> String {
+    let transport = McpTransport::spawn(server).await.expect("spawn");
+    let out = transport
+        .call_tool(&ToolCall {
+            name: "read_env".into(),
+            args: serde_json::json!({ "name": var }),
+            context: None,
+        })
+        .await
+        .expect("read_env succeeds");
+    out.result["text"].as_str().expect("text").to_string()
+}
+
+// Cargo sets CARGO_MANIFEST_DIR for every test process, so it stands in for a
+// secret Flux holds (an LLM key, a database URL) without mutating this
+// process's environment under parallel tests.
+const PARENT_VAR: &str = "CARGO_MANIFEST_DIR";
+
+#[tokio::test]
+async fn an_unlisted_variable_does_not_reach_the_server() {
+    assert!(std::env::var(PARENT_VAR).is_ok(), "cargo sets {PARENT_VAR}");
+    assert_eq!(child_env(&fixture(), PARENT_VAR).await, "<unset>");
+}
+
+#[tokio::test]
+async fn a_listed_variable_reaches_the_server() {
+    let server = McpServer {
+        env: vec![PARENT_VAR.to_string()],
+        ..fixture()
+    };
+    let expected = std::env::var(PARENT_VAR).expect("cargo sets it");
+    assert_eq!(child_env(&server, PARENT_VAR).await, expected);
+}
+
+#[tokio::test]
+async fn path_reaches_the_server_without_being_listed() {
+    let expected = std::env::var("PATH").expect("PATH is set");
+    assert_eq!(child_env(&fixture(), "PATH").await, expected);
 }
