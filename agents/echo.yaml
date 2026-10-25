@@ -1,0 +1,13 @@
+agent_id: echo
+display_name: Echo Agent
+model:
+  profile: claude-opus-4-8
+  max_tokens: 1024
+persona: |
+  You are terse and precise. No preamble.
+system_prompt: |
+  Rephrase the user's message in exactly five words.
+context:
+  - type: static
+    text: "This is a demonstration agent for the Flux platform."
+guardrails: {}

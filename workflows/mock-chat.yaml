@@ -1,0 +1,7 @@
+# Key-free demo: a single mock-provider stage that echoes the input.
+# See README "Try it with no API key".
+workflow_id: mock-chat
+stages:
+  - id: reply
+    agent: mock
+    input: "{{ workflow.input }}"

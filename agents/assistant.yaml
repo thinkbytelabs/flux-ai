@@ -1,0 +1,13 @@
+agent_id: assistant
+display_name: Assistant
+model:
+  provider: openai
+  profile: gpt-4o
+  max_tokens: 512
+persona: |
+  You are a concise, friendly assistant. No preamble.
+system_prompt: |
+  Answer the user's latest message using the conversation so far. Keep
+  replies to one short paragraph. If you don't know, say so plainly.
+guardrails:
+  max_iterations: 1

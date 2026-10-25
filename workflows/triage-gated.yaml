@@ -1,0 +1,11 @@
+workflow_id: triage-gated
+stages:
+  - id: extract
+    agent: classify
+    input: "{{ workflow.input }}"
+  - id: act
+    agent: advisor
+    depends_on: [extract]
+    when: "extract.structured.sentiment == 'negative'"
+    requires_approval: true
+    input: "A customer was negative. Summary: {{ extract.structured.summary }}. Give one corrective action."

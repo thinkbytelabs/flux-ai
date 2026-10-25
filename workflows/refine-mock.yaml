@@ -1,0 +1,19 @@
+# Key-free demo of a refine (evaluator-optimizer) stage.
+# See README "Refining a stage's answer".
+workflow_id: refine-mock
+stages:
+  - id: draft
+    agent: refine-writer-mock
+    input: "{{ workflow.input }}"
+    refine:
+      evaluator: refine-judge-mock
+      evaluate: |
+        Question: {{ workflow.input }}
+        Candidate:
+        {{ candidate.message }}
+      feedback: "{{ verdict.structured.feedback }}"
+      max_rounds: 2
+  - id: report
+    agent: mock
+    depends_on: [draft]
+    input: "Accepted: {{ draft.message }}"

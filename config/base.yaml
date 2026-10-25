@@ -1,0 +1,35 @@
+server:
+  listen: "0.0.0.0:8080"
+redis:
+  url: "redis://127.0.0.1:6379"
+  ttl_secs: 3600
+database:
+  url: null
+  max_connections: 10
+  acquire_timeout_secs: 30
+tools:
+  endpoint: "" # empty disables gRPC tool transport; set host:port to enable
+  # Several tool servers, routed by tool name. Wins over `endpoint` when set.
+  # endpoints:
+  #   - "http://query:50051"
+  #   - "http://remediation:50051"
+llm:
+  max_attempts: 3
+  base_delay_ms: 200
+  # Extra LLM providers by name; `anthropic` and `openai` are built in.
+  # `api_key_env` names an environment variable (keys never go in config).
+  # providers:
+  #   ollama: { kind: openai_compatible, base_url: "http://localhost:11434/v1" }
+orchestrator:
+  history_window: 20
+sse:
+  tail_poll_ms: 50
+telemetry:
+  log_format: "pretty"   # honored at startup; FLUX_LOG_FORMAT env var overrides
+  otlp_endpoint: null     # currently env-driven only (OTEL_EXPORTER_OTLP_ENDPOINT); reserved
+agent_defaults:
+  model:
+    profile: "claude-opus-4-8"
+    max_tokens: 4096
+  guardrails:
+    max_iterations: 4

@@ -1,0 +1,41 @@
+[package]
+name = "flux-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "HTTP server for Flux AI: run submission, SSE event streaming, approvals."
+readme = "../../README.md"
+
+[dependencies]
+sha2.workspace = true
+tokio-util.workspace = true
+futures-util.workspace = true
+flux-core = { workspace = true, features = ["otel"] }
+flux-config.workspace = true
+flux-settings.workspace = true
+flux-llm.workspace = true
+flux-runner.workspace = true
+flux-orchestrator.workspace = true
+flux-workflow.workspace = true
+flux-session.workspace = true
+flux-memory.workspace = true
+flux-tool-client.workspace = true
+axum.workspace = true
+tokio.workspace = true
+tokio-stream.workspace = true
+uuid = { workspace = true, features = ["v4"] }
+serde.workspace = true
+serde_json.workspace = true
+anyhow.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt-multi-thread", "test-util"] }
+tower = { workspace = true, features = ["util"] }
+http-body-util = "0.1"
+serde_yaml_ng = { workspace = true }

@@ -1,0 +1,10 @@
+agent_id: refine-writer-mock
+display_name: Refine Writer (mock)
+model:
+  provider: mock
+  mock_response: "SELECT 1"
+system_prompt: |
+  Mock writer for the refine example: always answers with a canned query.
+  No API key required.
+guardrails:
+  max_iterations: 1

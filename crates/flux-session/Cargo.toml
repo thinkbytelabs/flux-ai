@@ -1,0 +1,21 @@
+[package]
+name = "flux-session"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Event-sourced run sessions and event stores for Flux AI."
+readme = "../../README.md"
+
+[dependencies]
+flux-core.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+redis = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }

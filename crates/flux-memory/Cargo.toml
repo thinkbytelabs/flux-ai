@@ -1,0 +1,24 @@
+[package]
+name = "flux-memory"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Conversation memory backends (Redis, Postgres, tiered) for Flux AI."
+readme = "../../README.md"
+
+[dependencies]
+flux-core.workspace = true
+redis = { workspace = true }
+serde = { workspace = true }
+sqlx = { workspace = true }
+serde_json.workspace = true
+tokio.workspace = true
+tracing = { workspace = true }
+
+[dev-dependencies]
+tokio = { workspace = true, features = ["macros", "rt"] }

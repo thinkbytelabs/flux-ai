@@ -1,0 +1,5 @@
+# staging overlay. Add keys here to override config/base.yaml for this environment.
+# telemetry.log_format is honored at startup (FLUX_LOG_FORMAT env var overrides it).
+# telemetry.otlp_endpoint is still env-driven only (OTEL_EXPORTER_OTLP_ENDPOINT).
+telemetry:
+  log_format: "json"

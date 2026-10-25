@@ -1,0 +1,61 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.96"
+license = "Apache-2.0"
+repository = "https://github.com/thinkbytelabs/flux-ai"
+homepage = "https://github.com/thinkbytelabs/flux-ai"
+keywords = ["ai", "agents", "llm", "workflow", "orchestration"]
+categories = ["asynchronous", "web-programming"]
+
+[workspace.dependencies]
+flux-core = { path = "crates/flux-core", version = "0.1.0" }
+flux-settings = { path = "crates/flux-settings", version = "0.1.0" }
+flux-workflow = { path = "crates/flux-workflow", version = "0.1.0" }
+flux-config = { path = "crates/flux-config", version = "0.1.0" }
+flux-llm = { path = "crates/flux-llm", version = "0.1.0" }
+flux-runner = { path = "crates/flux-runner", version = "0.1.0" }
+flux-tool-client = { path = "crates/flux-tool-client", version = "0.1.0" }
+flux-orchestrator = { path = "crates/flux-orchestrator", version = "0.1.0" }
+flux-session = { path = "crates/flux-session", version = "0.1.0" }
+flux-server = { path = "crates/flux-server", version = "0.1.0" }
+flux-memory = { path = "crates/flux-memory", version = "0.1.0" }
+flux-tool-example = { path = "crates/flux-tool-example", version = "0.1.0" }
+minijinja = "2"
+axum = "0.8"
+reqwest = { version = "0.13", features = ["json", "stream"] }
+eventsource-stream = "0.2"
+tokio-stream = "0.1"
+tokio-util = "0.7"
+uuid = { version = "1", features = ["v4"] }
+tower = "0.5"
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+serde_yaml_ng = "0.10"
+futures-util = "0.3"
+thiserror = "2"
+anyhow = "1"
+tonic = { version = "0.12", features = ["transport"] }
+prost = "0.13"
+tonic-build = "0.12"
+# default-features = false would drop the `resolve-http`/`resolve-file` $ref
+# resolvers, but a transitive dependency requests the defaults and Cargo unions
+# features per crate-version across the graph, so they stay compiled in. Kept as
+# defence in depth: it takes effect if that ever changes. What actually stops
+# external $ref resolution is the retriever in `flux-core::schema`.
+jsonschema = { version = "0.46", default-features = false }
+rmcp = { version = "2.2", default-features = false, features = ["client", "transport-child-process"] }
+redis = { version = "0.27", features = ["tokio-comp", "streams", "connection-manager"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "tls-rustls", "postgres"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+opentelemetry = "0.32"
+opentelemetry_sdk = { version = "0.32", features = ["rt-tokio", "experimental_trace_batch_span_processor_with_async_runtime", "experimental_metrics_periodicreader_with_async_runtime"] }
+opentelemetry-otlp = { version = "0.32", default-features = false, features = ["trace", "metrics", "grpc-tonic"] }
+tracing-opentelemetry = "0.33"

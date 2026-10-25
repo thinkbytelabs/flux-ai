@@ -1,0 +1,9 @@
+# Single-agent chat: a workflow with exactly one `remember` stage.
+# Run it with a stable --conversation-id (CLI) or conversation_id (server) to
+# carry per-agent memory across turns. See README "Single-agent chat".
+workflow_id: assistant-chat
+stages:
+  - id: reply
+    agent: assistant
+    input: "{{ workflow.input }}"
+    remember: true

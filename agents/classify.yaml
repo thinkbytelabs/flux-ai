@@ -1,0 +1,23 @@
+agent_id: classify
+display_name: Classifier Agent
+model:
+  provider: anthropic
+  profile: claude-opus-4-8
+  max_tokens: 1024
+persona: |
+  You are a precise text classifier. No preamble.
+system_prompt: |
+  Read the user's message. Produce a one-sentence summary and an overall
+  sentiment. Respond ONLY with JSON matching the required schema.
+guardrails:
+  max_iterations: 1
+  output_schema:
+    type: object
+    properties:
+      summary:
+        type: string
+      sentiment:
+        type: string
+        enum: [positive, negative, neutral]
+    required: [summary, sentiment]
+    additionalProperties: false

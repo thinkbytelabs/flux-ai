@@ -1,0 +1,6 @@
+workflow_id: chat
+stages:
+  - id: reply
+    agent: echo
+    input: "{{ workflow.input }}"
+    remember: true

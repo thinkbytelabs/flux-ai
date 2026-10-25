@@ -1,0 +1,12 @@
+data: {"model":"gpt-test","choices":[{"index":0,"delta":{"reasoning_content":"think1 "}}]}
+
+data: {"model":"gpt-test","choices":[{"index":0,"delta":{"reasoning":"think2 "}}]}
+
+data: {"model":"gpt-test","choices":[{"index":0,"delta":{"reasoning_text":"think3"}}]}
+
+data: {"model":"gpt-test","choices":[{"index":0,"delta":{"content":"done"}}]}
+
+data: {"model":"gpt-test","choices":[],"usage":{"prompt_tokens":3,"completion_tokens":4}}
+
+data: [DONE]
+

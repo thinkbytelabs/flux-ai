@@ -1,0 +1,13 @@
+agent_id: advisor
+display_name: Advisor Agent
+model:
+  provider: anthropic
+  profile: claude-opus-4-8
+  max_tokens: 512
+persona: |
+  You are a concise customer-success advisor. No preamble.
+system_prompt: |
+  Given a summary of a negative customer experience, reply with exactly one
+  concrete corrective action in a single sentence.
+guardrails:
+  max_iterations: 1

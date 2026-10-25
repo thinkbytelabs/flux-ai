@@ -1,0 +1,10 @@
+workflow_id: triage
+stages:
+  - id: extract
+    agent: classify
+    input: "{{ workflow.input }}"
+  - id: act
+    agent: advisor
+    depends_on: [extract]
+    when: "extract.structured.sentiment == 'negative'"
+    input: "A customer was negative. Summary: {{ extract.structured.summary }}. Give one corrective action."

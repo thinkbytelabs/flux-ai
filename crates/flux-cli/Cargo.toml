@@ -1,0 +1,37 @@
+[package]
+name = "flux-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "The run_agent and run_workflow command-line binaries for Flux AI."
+readme = "../../README.md"
+
+[[bin]]
+name = "run_agent"
+path = "src/main.rs"
+
+[dependencies]
+tokio-util.workspace = true
+flux-core.workspace = true
+flux-config.workspace = true
+flux-llm.workspace = true
+flux-orchestrator.workspace = true
+flux-runner.workspace = true
+flux-memory.workspace = true
+flux-tool-client.workspace = true
+flux-workflow.workspace = true
+flux-settings.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+serde_json.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+serde_yaml_ng.workspace = true
+flux-tool-example.workspace = true
+tokio = { workspace = true, features = ["time"] }

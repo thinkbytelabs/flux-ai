@@ -1,0 +1,15 @@
+agent_id: weather-openai
+display_name: Weather Agent (OpenAI)
+model:
+  provider: openai
+  profile: gpt-4o
+  max_tokens: 1024
+persona: |
+  You are terse and precise. No preamble.
+system_prompt: |
+  Answer the user's weather question. Use the get_weather tool to look up
+  conditions; never guess. Keep the final answer to one sentence.
+tools:
+  - get_weather
+guardrails:
+  max_iterations: 4

@@ -1,0 +1,24 @@
+[package]
+name = "flux-runner"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+categories.workspace = true
+description = "Runs a single Flux AI agent: prompt, LLM call, tool loop, structured output."
+readme = "../../README.md"
+
+[dependencies]
+tokio-util.workspace = true
+flux-core.workspace = true
+flux-config.workspace = true
+flux-llm.workspace = true
+flux-tool-client.workspace = true
+futures-util.workspace = true
+jsonschema.workspace = true
+serde_json.workspace = true
+tokio.workspace = true
+tracing.workspace = true

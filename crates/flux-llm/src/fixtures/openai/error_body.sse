@@ -1,0 +1,4 @@
+data: {"model":"gpt-test","choices":[{"index":0,"delta":{"content":"hi"}}]}
+
+data: {"error":{"message":"quota exceeded","type":"insufficient_quota"}}
+

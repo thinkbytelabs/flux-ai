@@ -1,0 +1,17 @@
+/target
+
+# OS noise
+.DS_Store
+
+# Local dev / subagent-driven-development scratch — not part of the project
+/.superpowers/
+/docs/superpowers/
+
+# Harness-managed git worktrees
+/.claude/worktrees/
+
+# Redis test dump artifact
+dump.rdb
+
+# Internal design document — not part of the open-source project
+*.pdf

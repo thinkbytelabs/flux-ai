@@ -1,0 +1,8 @@
+agent_id: mock
+display_name: Mock Agent
+model:
+  provider: mock
+system_prompt: |
+  Mock agent: echoes the user's message. No API key required.
+guardrails:
+  max_iterations: 1

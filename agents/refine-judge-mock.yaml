@@ -1,0 +1,18 @@
+agent_id: refine-judge-mock
+display_name: Refine Judge (mock)
+model:
+  provider: mock
+  mock_response: '{"pass": true, "feedback": ""}'
+system_prompt: |
+  Mock judge for the refine example: always accepts the candidate.
+  No API key required.
+guardrails:
+  max_iterations: 1
+  output_schema:
+    type: object
+    properties:
+      pass:
+        type: boolean
+      feedback:
+        type: string
+    required: [pass, feedback]
