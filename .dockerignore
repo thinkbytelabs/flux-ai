@@ -1,0 +1,11 @@
+target/
+.git/
+.superpowers/
+docs/superpowers/
+.claude/
+dump.rdb
+*.pdf
+.DS_Store
+.idea/
+.vscode/
+*.swp

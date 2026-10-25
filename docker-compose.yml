@@ -1,0 +1,28 @@
+# Try Flux with no Rust toolchain: `docker compose up -d`, then see the README
+# "Quickstart (Docker)". Agents and workflows are mounted from this checkout,
+# so edit them locally and `docker compose restart flux`.
+services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  flux:
+    image: ghcr.io/thinkbytelabs/flux:latest
+    build: .
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      REDIS_URL: redis://redis:6379
+      # Passed through from your shell if set; never stored in this file.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+    ports:
+      - "${FLUX_PORT:-8080}:8080"
+    volumes:
+      - ./agents:/app/agents:ro
+      - ./workflows:/app/workflows:ro
