@@ -30,7 +30,14 @@ async fn main() -> ExitCode {
     }
 }
 
+const USAGE: &str = "usage: flux-server --agents-dir <dir> --workflows-dir <dir>";
+
 async fn run() -> anyhow::Result<()> {
+    // Before settings load, so help works without a config dir.
+    if std::env::args().skip(1).any(|a| a == "-h" || a == "--help") {
+        println!("{USAGE}");
+        return Ok(());
+    }
     let settings = flux_settings::Settings::load().context("loading config")?;
     let _telemetry_guard = flux_core::telemetry::init_tracing(
         false,
@@ -38,7 +45,6 @@ async fn run() -> anyhow::Result<()> {
     );
     tracing::info!(config_dir = %settings.config_dir, env = %settings.env_name, "configuration loaded");
 
-    // usage: flux-server --agents-dir <dir> --workflows-dir <dir>
     let mut agents_dir: Option<String> = None;
     let mut workflows_dir: Option<String> = None;
     let mut args = std::env::args().skip(1);

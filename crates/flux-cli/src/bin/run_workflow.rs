@@ -122,7 +122,14 @@ where
     .await?)
 }
 
+const USAGE: &str = "usage: run_workflow --agents-dir <dir> [--conversation-id ID] [--context-json JSON] <workflow.yaml> <input>";
+
 async fn run() -> anyhow::Result<()> {
+    // Before settings load, so help works without a config dir.
+    if std::env::args().skip(1).any(|a| a == "-h" || a == "--help") {
+        println!("{USAGE}");
+        return Ok(());
+    }
     let settings = flux_settings::Settings::load().context("loading settings")?;
     let _telemetry_guard = flux_core::telemetry::init_tracing(
         true,
@@ -130,7 +137,6 @@ async fn run() -> anyhow::Result<()> {
     );
     tracing::info!(config_dir = %settings.config_dir, env = %settings.env_name, "configuration loaded");
 
-    // usage: run_workflow --agents-dir <dir> [--conversation-id ID] [--context-json JSON] <workflow.yaml> <input>
     let mut agents_dir: Option<String> = None;
     let mut conversation_id: Option<String> = None;
     let mut context: Option<serde_json::Value> = None;
@@ -152,9 +158,7 @@ async fn run() -> anyhow::Result<()> {
     }
     let (wf_path, input) = match positional.as_slice() {
         [w, i] => (PathBuf::from(w), i.clone()),
-        _ => bail!(
-            "usage: run_workflow --agents-dir <dir> [--conversation-id ID] [--context-json JSON] <workflow.yaml> <input>"
-        ),
+        _ => bail!(USAGE),
     };
     let agents_dir = agents_dir.context("--agents-dir is required")?;
 

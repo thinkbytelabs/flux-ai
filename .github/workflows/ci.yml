@@ -23,7 +23,7 @@ jobs:
       REDIS_URL: redis://127.0.0.1:6379/
       DATABASE_URL: postgres://postgres@127.0.0.1:5432/flux_memory_test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Installs the toolchain pinned in rust-toolchain.toml (also the MSRV).
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -43,5 +43,5 @@ jobs:
   deny:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: EmbarkStudios/cargo-deny-action@v2
