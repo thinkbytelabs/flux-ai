@@ -13,9 +13,10 @@ First release.
 
 ### Security
 - MCP servers no longer inherit Flux's environment, so they cannot read its
-  LLM API keys or database URLs. Each gets `PATH`, `HOME`, `USER`, `LOGNAME`,
-  `SHELL`, `LANG`, `LC_ALL`, `TMPDIR` and `TZ`, plus the variables named in
-  its new `tools.mcp[].env` list.
+  LLM API keys or database URLs. Each gets a fixed set of non-secret
+  variables (`PATH`, `HOME`, locale, XDG dirs, CA-bundle paths; see README
+  "MCP tool servers"), plus the variables named in its new
+  `tools.mcp[].env` list.
 - An agent can no longer call a tool outside its `tools:` list; such a call
   returns `{"error": "tool '<name>' is not available"}` to the model.
 - `POST /runs/{id}/approve` only accepts a stage the run is paused on; any

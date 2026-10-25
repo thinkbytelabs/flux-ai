@@ -31,11 +31,28 @@ const LIST_TOOLS_TIMEOUT: Duration = Duration::from_secs(30);
 const CALL_TOOL_TIMEOUT: Duration = Duration::from_secs(120);
 
 /// Variables every MCP child gets from Flux's environment when set: enough to
-/// find and run `npx`/`uvx` and pick a locale, and nothing that holds a
-/// secret. Proxy variables are left out because their URLs can carry
-/// credentials; list them in [`McpServer::env`] when a server needs them.
+/// find and run `npx`/`uvx`, pick a locale, find writable cache dirs and trust
+/// a corporate CA, and nothing that holds a secret. Proxy variables are left
+/// out because their URLs can carry credentials; list them in
+/// [`McpServer::env`] when a server needs them.
 pub const BASE_ENV: &[&str] = &[
-    "PATH", "HOME", "USER", "LOGNAME", "SHELL", "LANG", "LC_ALL", "TMPDIR", "TZ",
+    "PATH",
+    "HOME",
+    "USER",
+    "LOGNAME",
+    "SHELL",
+    "LANG",
+    "LC_ALL",
+    "LC_CTYPE",
+    "TMPDIR",
+    "TZ",
+    "XDG_CACHE_HOME",
+    "XDG_CONFIG_HOME",
+    "XDG_DATA_HOME",
+    "SSL_CERT_FILE",
+    "SSL_CERT_DIR",
+    "NODE_EXTRA_CA_CERTS",
+    "REQUESTS_CA_BUNDLE",
 ];
 
 /// How to launch one MCP server.

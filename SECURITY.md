@@ -32,8 +32,8 @@ Other properties worth knowing:
 - **Tools:** an agent can only call the tools listed in its `tools:` config;
   a model-requested call to any other tool is refused before it reaches a
   tool server. MCP servers do not inherit Flux's environment: each gets only
-  `PATH`, `HOME`, locale and similar non-secret variables, plus the variables
-  named in its `env` list.
+  `PATH`, `HOME`, locale, cache-dir, CA-bundle and similar non-secret
+  variables, plus the variables named in its `env` list.
 - **Timeouts:** gRPC tool calls have a 120s deadline, MCP tool calls 120s, and
   an LLM attempt fails after 180s of silence from the provider.
 - **Secrets in logs:** passwords in Redis/Postgres URLs are redacted from logs

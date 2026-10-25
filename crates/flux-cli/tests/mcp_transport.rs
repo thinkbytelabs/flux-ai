@@ -237,3 +237,20 @@ async fn path_reaches_the_server_without_being_listed() {
     let expected = std::env::var("PATH").expect("PATH is set");
     assert_eq!(child_env(&fixture(), "PATH").await, expected);
 }
+
+#[tokio::test]
+async fn home_reaches_the_server_without_being_listed() {
+    let expected = std::env::var("HOME").expect("HOME is set");
+    assert_eq!(child_env(&fixture(), "HOME").await, expected);
+}
+
+#[tokio::test]
+async fn a_listed_but_unset_variable_is_skipped() {
+    const UNSET: &str = "FLUX_TEST_VARIABLE_THAT_IS_NEVER_SET";
+    assert!(std::env::var(UNSET).is_err());
+    let server = McpServer {
+        env: vec![UNSET.to_string()],
+        ..fixture()
+    };
+    assert_eq!(child_env(&server, UNSET).await, "<unset>");
+}

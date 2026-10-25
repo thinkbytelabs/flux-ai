@@ -338,12 +338,15 @@ tools:
 ```
 
 **Environment.** An MCP server does not inherit Flux's environment, so it never
-sees Flux's LLM keys or database URLs. It gets `PATH`, `HOME`, `USER`,
-`LOGNAME`, `SHELL`, `LANG`, `LC_ALL`, `TMPDIR` and `TZ` when set, plus the
-variables named in its `env` list. List names, not values; a listed variable
-that is unset is skipped. Proxy variables are not passed by default, because
-their URLs can carry credentials; list `HTTPS_PROXY` and friends when a server
-needs them.
+sees Flux's LLM keys or database URLs. When set, it gets `PATH`, `HOME`,
+`USER`, `LOGNAME`, `SHELL`, the locale (`LANG`, `LC_ALL`, `LC_CTYPE`),
+`TMPDIR`, `TZ`, the XDG cache, config and data dirs, and the CA-bundle paths
+(`SSL_CERT_FILE`, `SSL_CERT_DIR`, `NODE_EXTRA_CA_CERTS`, `REQUESTS_CA_BUNDLE`),
+plus the variables named in its `env` list. List names, not values; a listed
+variable that is unset is skipped. Proxy variables are not passed by default,
+because their URLs can carry credentials; list `HTTPS_PROXY` and friends when
+a server needs them. Tool-specific settings such as `NPM_CONFIG_CACHE`,
+`UV_CACHE_DIR` or `DOCKER_HOST` must be listed too.
 
 ```yaml
 tools:
